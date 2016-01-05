@@ -21,8 +21,8 @@ class Metric(object):
         return 'Metric(%r, %r, %r, %r)' % (self.host, self.key, self.value, self.clock)
 
 def send_to_zabbix(metrics, zabbix_host='127.0.0.1', zabbix_port=10051, timeout=15):
-    """Send set of metrics to Zabbix server.""" 
-    
+    """Send set of metrics to Zabbix server."""
+
     j = json.dumps
     # Zabbix has very fragile JSON parser, and we cannot use json to dump whole packet
     metrics_data = []
@@ -37,13 +37,13 @@ def send_to_zabbix(metrics, zabbix_host='127.0.0.1', zabbix_port=10051, timeout=
            '\t"request":"sender data",\n'
            '\t"data":[\n%s]\n'
            '}') % (',\n'.join(metrics_data))
-    
+
     data_len = struct.pack('<Q', len(json_data))
     packet = 'ZBXD\1' + data_len + json_data
     try:
         zabbix = socket.socket()
-        zabbix.connect((zabbix_host, zabbix_port))
         zabbix.settimeout(timeout)
+        zabbix.connect((zabbix_host, zabbix_port))
         # send metrics to zabbix
         zabbix.sendall(packet)
         # get response header from zabbix
@@ -72,7 +72,7 @@ def send_to_zabbix(metrics, zabbix_host='127.0.0.1', zabbix_port=10051, timeout=
 
 
 
-logger = logging.getLogger('zbxsender') 
+logger = logging.getLogger('zbxsender')
 
 def _recv_all(sock, count):
     buf = ''
@@ -83,7 +83,7 @@ def _recv_all(sock, count):
         buf += chunk
     return buf
 
-    
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     send_to_zabbix([Metric('localhost', 'bucks_earned', 99999)], 'localhost', 10051)
